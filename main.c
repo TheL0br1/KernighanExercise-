@@ -2,11 +2,11 @@
 #include<stdbool.h>
 #include <stdlib.h>
 
-#define  MAXLENGTH 100
+#define  MAXLENGTH 256
 void printGisto(int *gisto){
     for (int i = 0; i < MAXLENGTH; ++i) {
         if(gisto[i]==0) continue;
-        printf("%d: ", i);
+        printf("%c: ", (char)i);
         for (int j = 0; j < gisto[i]; ++j) {
             printf("-");
         }
@@ -18,24 +18,10 @@ int main()
     int gisto[MAXLENGTH] = {0};
     char c;
     bool flag = false;
-    int count =0;
     while((c=getchar())!=EOF){
-        switch (c) {
-            case ' ':
-                if(flag) {
-                    gisto[count]++;
-                    count = 0;
-                }
-                flag = false;
-                break;
-            default:
-                count++;
-                flag = true;
-                break;
-        }
+        gisto[c]++;
     }
-    printGisto(gisto);
-    system("PAUSE");
 
+    printGisto(gisto);
     return 0;
 }
