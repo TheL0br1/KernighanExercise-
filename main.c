@@ -3,24 +3,20 @@
 int main()
 {
     char c;
-    bool flag = false;
+    bool flag = true;
     while((c=getchar())!=EOF){
         switch (c) {
-            case '\n':
-                printf("\\n");
-                break;
-            case '\t':
-                printf("\\t");
-                break;
-            case '\b':
-                printf("\\b");
+            case ' ':
+                if(flag) {
+                    printf("\n");
+                }
+                flag = false;
                 break;
             default:
                 printf("%c", c);
+                flag = true;
                 break;
         }
-
-
     }
 
 
