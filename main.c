@@ -1,20 +1,19 @@
 #include <stdio.h>
-
+#include<stdbool.h>
 int main()
 {
     char c;
-    int countTab=0, countNL=0, countSpace=0;
+    bool flag = true;
     while((c=getchar())!=EOF){
-        switch (c) {
-            case ' ':
-                countSpace++;
-            case '\n':
-                countNL++;
-            case '\t':
-                countTab++;
+        if(c!=' '){
+            putchar(c);
+            flag = true;
+        }
+        if(c==' ' && flag){
+            flag = false;
+            putchar(c);
         }
     }
-    printf("%d, %d, %d", countSpace, countTab, countNL);
 
 
     return 0;
