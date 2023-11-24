@@ -3,16 +3,24 @@
 int main()
 {
     char c;
-    bool flag = true;
+    bool flag = false;
     while((c=getchar())!=EOF){
-        if(c!=' '){
-            putchar(c);
-            flag = true;
+        switch (c) {
+            case '\n':
+                printf("\\n");
+                break;
+            case '\t':
+                printf("\\t");
+                break;
+            case '\b':
+                printf("\\b");
+                break;
+            default:
+                printf("%c", c);
+                break;
         }
-        if(c==' ' && flag){
-            flag = false;
-            putchar(c);
-        }
+
+
     }
 
 
