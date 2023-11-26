@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include<stdbool.h>
 int main() {
 
-    char *longest = malloc(20); /* найдовший рядок буде збережено тут */
+    char *longest = malloc(20);
     while (1) {
         long long i = 0;
         long long size = 20;
-        char *line = malloc(size); /* поточний рядок вводу */
+        char *line = malloc(size);
+        long long lastSymbol = 0;
+        bool flag = false;
         while ((line[i] = getchar()) != EOF && line[i] != '\n') {
 
             i++;
@@ -18,17 +20,26 @@ int main() {
                     break;
                 }
             }
+            if(!(line[i-1]==' ' || line[i-1] == '\t')){
+                lastSymbol = (i-1);
+            }else{
+                flag = true;
+            }
+
         }
+        if(flag) {
+            line[lastSymbol+1] = '\0';
+        }else{
+            line[i] = '\0';
+
+        }
+
+
+        printf("String = %s, Address: %u, len: %d\n", line, line, i);
         if(line[i]==EOF){
+            free(line);
             break;
         }
-        line[i] = '\0';
-        printf("String = %s, Address: %u\n", line, line);
-        if (i >= 80) {
-
-            printf("Line above 80 char: %s, Address: %u\n", line, line);
-        }
-        free(line);
 
     }
 
