@@ -1,48 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include<stdbool.h>
+int strlen(char* s){
+    int i =0;
+    while(s[i]!='\0'){
+        i++;
+    }
+    return i;
+}
+void reverse(char s[]){
+    for (int i = 0; i < strlen(s)/2; ++i) {
+        char temp = s[i];
+        s[i] = s[strlen(s)-1-i];
+        s[strlen(s)-1-i] = temp;
+    }
+}
 int main() {
 
-    char *longest = malloc(20);
-    while (1) {
-        long long i = 0;
-        long long size = 20;
-        char *line = malloc(size);
-        long long lastSymbol = 0;
-        bool flag = false;
-        while ((line[i] = getchar()) != EOF && line[i] != '\n') {
-
-            i++;
-            if (i >= size) {
-                size *= 2;
-                line = realloc(line, size);
-                if (line == NULL) {
-                    break;
-                }
-            }
-            if(!(line[i-1]==' ' || line[i-1] == '\t')){
-                lastSymbol = (i-1);
-            }else{
-                flag = true;
-            }
-
-        }
-        if(flag) {
-            line[lastSymbol+1] = '\0';
-        }else{
-            line[i] = '\0';
-
-        }
-
-
-        printf("String = %s, Address: %u, len: %d\n", line, line, i);
-        if(line[i]==EOF){
-            free(line);
-            break;
-        }
-
-    }
-
-    free(longest);
+    char s[] = "hello world";
+    printf("S : %s\n", s);
+    reverse(s);
+    printf("Reversed S: %s", s);
     return 0;
 }
