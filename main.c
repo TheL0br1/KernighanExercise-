@@ -1,27 +1,24 @@
 #include <stdio.h>
-#include<stdbool.h>
-#include <stdlib.h>
 
-#define  MAXLENGTH 256
-void printGisto(int *gisto){
-    for (int i = 0; i < MAXLENGTH; ++i) {
-        if(gisto[i]==0) continue;
-        printf("%c: ", (char)i);
-        for (int j = 0; j < gisto[i]; ++j) {
-            printf("-");
-        }
-        printf("\n");
-    }
+#include <stdio.h>
+double f2cConv(double fahr){
+    return (5.0/9.0) * (fahr-32.0);
+}
+double c2fConv(double cels){
+    ((9.0/5.0) * cels)+32.0;
 }
 int main()
 {
-    int gisto[MAXLENGTH] = {0};
-    char c;
-    bool flag = false;
-    while((c=getchar())!=EOF){
-        gisto[c]++;
+    float fahr, celsius;
+    float lower, upper, step;
+    lower = 0; /* нижня межа температурної шкали */
+    upper = 300; /* верхня межа */
+    step = 5; /* розмiр кроку */
+    celsius = lower;
+    printf("From Celsius to Fahrenheit\n");
+    while (celsius <= upper) {
+        fahr = c2fConv(celsius);
+        printf("%3.0f %6.1f\n", celsius,fahr);
+        celsius += step;
     }
-
-    printGisto(gisto);
-    return 0;
 }
