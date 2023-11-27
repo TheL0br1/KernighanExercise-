@@ -1,44 +1,30 @@
 #include <stdio.h>
-#include <math.h>
-int strlen(const char* s){
+#include<stdbool.h>
+unsigned int strlen(const char* s){
     int i = 0;
     while(s[i]!=EOF && s[i]!='\0'){
         i++;
     }
     return i;
 }
-int htoi(char* s){
-    int result = 0;
-    int i = strlen(s) - 1;
-    while(s[i]!='X' && s[i]!='x'){
-        if(s[i]-'0'>= 0 && s[i]-'0'<=9){
-            result+= (s[i]-'0') * pow(16, strlen(s) - 1 - i);
-        }
-        if(s[i] == 'a' || s[i] == 'A'){
-            result+= 11 * pow(16, strlen(s) - 1 - i);
-        }
-        if(s[i] == 'b' || s[i] == 'B'){
-            result+= 12 * pow(16, strlen(s) - 1 - i);
-        }
-        if(s[i] == 'c' || s[i] == 'C'){
-            result+= 13 * pow(16, strlen(s) - 1 - i);
-        }
-        if(s[i] == 'd' || s[i] == 'D'){
-            result+= 13 * pow(16, strlen(s) - 1 - i);
-        }
-        if(s[i] == 'e' || s[i] == 'E'){
-            result+= 14 * pow(16, strlen(s) - 1 - i);
-        }
-        if(s[i] == 'f' || s[i] == 'F'){
-            result+= 15 * pow(16, strlen(s) - 1 - i);
-        }
-        i--;
+void squeeze(char s1[], char s2[]){
+    bool map[256] ={};
+    for (int i = 0; i < strlen(s2); ++i) {
+        map[s2[i]] = true;
     }
-    return result;
+    int i,j;
+    for (i = j = 0; s1[i] != '\0'; i++) {
+        if (!map[s1[i]])
+            s1[j++] = s1[i];
+    }
+    s1[j] = '\0';
+
+
 }
 int main() {
-    char* s = "0XFF";
-    printf("%d\n", strlen(s));
-    printf("%d", htoi(s));
+    char s1[] = "qkekefqmnkefk\0";
+    char s2[] = "dlkfevnf\0";
+    squeeze(s1,s2);
+    printf("%s", s1);
     return 0;
 }
