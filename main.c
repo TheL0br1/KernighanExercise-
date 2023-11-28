@@ -17,11 +17,13 @@ unsigned invert(unsigned x, int p, int n){
     printbitset(mask,8);
     return x ^ mask;
 }
-
+unsigned rightpot(unsigned x, unsigned n){
+    return x >> n;
+}
 int main() {
     unsigned int a = 53;
     printbitset(a,8);
-    printbitset(invert(a,5,2),8);
+    printbitset(rightpot(a,3),8);
 
     return 0;
 }
