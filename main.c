@@ -7,6 +7,7 @@ int lower(int c)
     return res;
 }
 
+
 int main() {
     printf("%c", lower((int) 'A'));
 
