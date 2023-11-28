@@ -1,29 +1,28 @@
 #include <stdio.h>
 #include<stdbool.h>
-unsigned int strlen(const char* s){
-    int i = 0;
-    while(s[i]!=EOF && s[i]!='\0'){
-        i++;
+void printbitset(int x, int n) {
+    for (int i = n - 1; i >= 0; i--) {
+        printf("%d", x & (1 << i) ? 1 : 0);
     }
-    return i;
+    printf("\n");
 }
-uintptr_t /*unsigned ll*/ any(char s1[], char s2[]){
-    bool map[256] ={};
-    for (int i = 0; i < strlen(s2); ++i) {
-        map[s2[i]] = true;
-    }
-    int i,j;
-    for (i = j = 0; s1[i] != '\0'; i++) {
-        if (map[s1[i]])
-            return i;
-    }
-    s1[j] = '\0';
+unsigned setbits(unsigned x, int p, int n, unsigned y) {
+    unsigned mask = ~(~0 << n) << (p - n + 1);
+
+    x = x & ~mask;
+
+    y = (y & ~(~0 << n)) << (p - n + 1);
+
+    return x | y;
+}
 
 
-}
 int main() {
-    char s1[] = "qkekefqmnkefk\0";
-    char s2[] = "dlkfevnf\0";
-    printf("%d",     any(s1,s2));
+    unsigned int a = 30;
+    unsigned int b = 2;
+    printbitset(a,8);
+    printbitset(b, 8);
+    printbitset(setbits(a,2,2,b),8);
+
     return 0;
 }
