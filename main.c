@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h> /* для atof() */
+#include<math.h>
 #include "stack.h"
 #include "gettop.h"
+
 #define MAXOP 100 /* максимальний розмiр операнда або оператора */
 #define NUMBER '0' /* сигналiзувати, що номер знайдено */
 int getop(char []);
@@ -37,6 +39,19 @@ int main() {
                     push(pop() / op2);
                 else
                     printf("error: zero divisor\n");
+                break;
+            case 's':
+                push(sin(pop()));
+                break;
+            case 'c':
+                push(cos(pop()));
+                break;
+            case 'e':
+                push(exp(pop()));
+                break;
+            case 'p':
+                op2 = pop();
+                push(pow(pop(),op2));
                 break;
             case '\n':
                 printf("\t%.8g\n", pop());
