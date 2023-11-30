@@ -10,7 +10,7 @@ void reverse(char s[])
         s[j] = c;
     }
 }
-void itob(int n, char s[], int b)
+void itoa(int n, char s[], int b)
 {
     int min_int = 0;
     int i, sign;
@@ -22,8 +22,8 @@ void itob(int n, char s[], int b)
         n = -n; /* перетворити n на додатнє */
     i = 0;
     do { /* генерувати цифри в зворотньому порядку */
-        s[i++] = n % b + '0'; /* одержати наступну цифру */
-    } while ((n /= b) > 0); /* видалити її */
+        s[i++] = n % 10 + '0'; /* одержати наступну цифру */
+    } while ((n /= 10) > 0 && i<b); /* видалити її */
     if (min_int) {
         s[0] = (char) (s[0] + 1);
         s[i++] = '-';
@@ -31,14 +31,17 @@ void itob(int n, char s[], int b)
     if(sign<0){
         s[i++]= '-';
     }
+    while(i<b){
+        s[i++] = ' ';
+    }
     s[i] = '\0';
     reverse(s);
 }
 
 int main() {
-    int a = 120;
+    int a = 12000;
     char b[100];
-    itob(a,b,16);
+    itoa(a,b,7);
     printf("%s", b);
     return 0;
 }
