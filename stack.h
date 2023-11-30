@@ -25,4 +25,17 @@ double pop(void)
         return 0.0;
     }
 }
+void clear(void){
+    sp=0;
+}
+void show(int i){
+    for (int j = 0; j < i; ++j) {
+        printf("%f",val[sp-i]);
+    }
+}
+void swap2(void){
+    int temp = val[sp];
+    val[sp] = val[sp-1];
+    val[sp-1] = temp;
+}
 #endif //UNTITLED4_STACK_H
