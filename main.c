@@ -1,45 +1,50 @@
 #include <stdio.h>
-#include<limits.h>
-#include<string.h>
-#include<ctype.h>
-#include<math.h>
-double MYatof(char s[])
-{
-    double val=1, power=1;
-    int exp=0, expSign =1;
-    int i=0, sign;
-    for (i = 0; isspace(s[i]); i++) { /* пропустити пробiли */
-        ;
-    }
- sign = (s[i] == '-') ? -1 : 1;
-    if (s[i] == '+' || s[i] == '-') {
-        i++;
-    }
-    for (val = 0.0; isdigit(s[i]); i++)
-        val = 10.0 * val + (s[i] - '0');
-    if (s[i] == '.') {
-        i++;
-    }
-    for (power = 1.0; isdigit(s[i]); i++) {
-        val = 10.0 * val + (s[i] - '0');
-        power *= 10.0;
-    }
-    if(s[i] == 'e'){
-        i++;
-        if(s[i]=='-'){
-            i++;
-            expSign=-1;
+#include <stdlib.h> /* для atof() */
+#include "stack.h"
+#include "gettop.h"
+#define MAXOP 100 /* максимальний розмiр операнда або оператора */
+#define NUMBER '0' /* сигналiзувати, що номер знайдено */
+int getop(char []);
+void push(double);
+double pop(void);
+/* калькулятор зi зворотньою польською нотацiєю */
+int main() {
+    int type;
+    double op2;
+    char s[MAXOP];
+    while ((type = getop(s)) != EOF) {
+        switch (type) {
+            case NUMBER:
+                push(atof(s));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '%':
+                op2 = pop();
+                push((int)pop() % (int)op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0)
+                    push(pop() / op2);
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '\n':
+                printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", s);
+                break;
         }
     }
-    for (; isdigit(s[i]); i++) {
-        exp = 10.0 * exp + (s[i] - '0');
-    }
-    printf("%c", s[i]);
-    return sign * val / power * pow(10,expSign*exp);
-}
-
-int main() {
-    printf("%f", MYatof("223.333e3\0"));
-
     return 0;
 }
