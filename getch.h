@@ -25,4 +25,5 @@ void ungets(char s[]){
         ungetch(s[i]);
     }
 }
+
 #endif //UNTITLED4_GETCH_H

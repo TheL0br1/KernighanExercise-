@@ -37,4 +37,5 @@ int getop(char s[])
         ungetch(c);
     return NUMBER;
 }
+
 #endif //UNTITLED4_GETTOP_H
