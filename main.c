@@ -1,21 +1,12 @@
 #include <stdio.h>
-#include<string.h>
+#define swap(a,b) typeof(a) temp =a; a = b; b = temp;
 
-void reverse(char s[], int a, int b){
-    if(a<b){
-        char temp = s[a];
-        s[a] = s[b];
-        s[b] = temp;
-        reverse(s, a+1, b-1);
-    }
-}
 int main() {
-    char s[] = "i must get reversed!";
-    printf("%s\n", s);
-    reverse(s,0, strlen(s)-1);
-    printf("%s\n", s);
 
-
+    int a = 10, b = 4;
+    printf("%d\t%d\n", a,b);
+    swap(a,b);
+    printf("%d\t%d",a,b);
     return 0;
 
 }
