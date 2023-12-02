@@ -1,65 +1,29 @@
 #include <stdio.h>
-#include <stdlib.h> /* для atof() */
-#include<math.h>
-#include "stack.h"
-#include "gettop.h"
 
-#define MAXOP 100 /* максимальний розмiр операнда або оператора */
-#define NUMBER '0' /* сигналiзувати, що номер знайдено */
-int getop(char []);
-void push(double);
-double pop(void);
-/* калькулятор зi зворотньою польською нотацiєю */
-int main() {
-    int type;
-    double op2;
-    char s[MAXOP];
-    while ((type = getop(s)) != EOF) {
-        switch (type) {
-            case NUMBER:
-                push(atof(s));
-                break;
-            case '+':
-                push(pop() + pop());
-                break;
-            case '*':
-                push(pop() * pop());
-                break;
-            case '-':
-                op2 = pop();
-                push(pop() - op2);
-                break;
-            case '%':
-                op2 = pop();
-                push((int)pop() % (int)op2);
-                break;
-            case '/':
-                op2 = pop();
-                if (op2 != 0.0)
-                    push(pop() / op2);
-                else
-                    printf("error: zero divisor\n");
-                break;
-            case 's':
-                push(sin(pop()));
-                break;
-            case 'c':
-                push(cos(pop()));
-                break;
-            case 'e':
-                push(exp(pop()));
-                break;
-            case 'p':
-                op2 = pop();
-                push(pow(pop(),op2));
-                break;
-            case '\n':
-                printf("\t%.8g\n", pop());
-                break;
-            default:
-                printf("error: unknown command %s\n", s);
-                break;
-        }
+void itoa(int n, char s[], int* i)
+{
+    if (n < 0) {
+        s[(*i)++] = '-';
+        n = -n;
     }
+
+    if (n / 10) {
+        itoa(n / 10, s, i);
+    }
+
+    s[(*i)++] = n % 10 + '0';
+    s[*i] = '\0';
+}
+
+int main() {
+    int num = 1023352;
+    char result[20];
+    int i = 0;
+
+    itoa(num, result, &i);
+
+    printf("Int: %d\nStr: %s\n", num, result);
+
     return 0;
+
 }
