@@ -1,21 +1,23 @@
 #include <stdio.h>
 #include<stdlib.h>
 #define BUFSIZE 500 /* максимальний розмiр операнда або оператора */
-void strcat1(char *s, char *t)
-{
-    int i, j;
-    i = j = 0;
-    while (*(s+i) != '\0') { /* знаходить кiнець s */
+int strend(char* s, char* t){
+    int i=0,j=0;
+    while(s[i] != t[0]){
         i++;
     }
-    while ((*(s+i) = *(t+j)) != '\0') { /* копiює t */
-        i++; j++;
+    while(s[i]!='\0'){
+        if(s[i] != t[j++]){
+            return 0;
+        }
+        i++;
     }
+    return 1;
 }
 int main() {
-    char s[]="frkjlk\0";
-    char t[]= "00000\0";
-    strcat1(s,t);
-    printf("%s", s);
+    char s[]="frkjlk0000\0";
+    char t[]= "000\0";
+    int a = strend(s,t);
+    printf("%d", a);
     return 0;
 }
