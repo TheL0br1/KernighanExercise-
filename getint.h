@@ -1,11 +1,11 @@
 #include <ctype.h>
 #include <stdio.h>
-
+#include<math.h>
 int getch(void);
 void ungetch(int);
 
-/* getint: зберiгає наступне введене цiле у *pn */
-int getint(int *pn)
+/* getfloat: зберiгає наступне введене цiле у *pn */
+int getfloat(float *pn)
 {
     int c, sign;
 
@@ -25,7 +25,12 @@ int getint(int *pn)
     for (*pn = 0; isdigit(c); c = getch()) {
         *pn = 10 * *pn + (c - '0');
     }
-
+    if(c=='.'){
+        c = getch();
+        for (int i =1; isdigit(c); c = getch(), i++) {
+            *pn += (c - '0')/pow(10,i);
+        }
+    }
     *pn *= sign;
 
     if (c != EOF)

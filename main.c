@@ -4,8 +4,8 @@
 #define BUFSIZE 500 /* максимальний розмiр операнда або оператора */
 
 int main() {
-    int a[100];
-    printf("%d\n", getint(&a[0]));
-    printf("%d", a[0]);
+    float a[100];
+    printf("%d\n", getfloat(&a[0]));
+    printf("%f", a[0]);
     return 0;
 }
