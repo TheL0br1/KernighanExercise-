@@ -1,34 +1,36 @@
 #include <stdio.h>
+#include<stdlib.h>
+#define MAXLEN 1000
 
-void strncpy1(char*s,char*t, int n){
+char *a[5];
+int getline(char *string, int n){
     int i =0;
-    while(t[i]!='\0' && i<n){
-        s[i] = t[i];
+    while((string[i] = getchar()) != '\n' && i < n){
         i++;
     }
-    s[i] = '\0';
+    return i;
 }
-void strncat1(char *s, char *t, int n){
-    int i =0, j=0;
-    while(s[i++]!='\0'){;}
-    i--;
-    while ((s[i++] = t[j++]) != '\0' && j < n) {
-        ;
+int readlines(char *lineptr[], int maxlines)
+{
+    int nlines;
+    int len=0;
+    nlines = 0;
+    while (nlines < maxlines && (len = getline(lineptr[nlines], MAXLEN)) > 0) {
+       lineptr[nlines][len]= '\0';
+        nlines++;
     }
+    return nlines;
 }
-int strncmp1(char *s, char*t, int n){
-    int i =0;
-    while(s[i]!='\0' && t[i]!='\0' && i<n){
-        if(s[i]!=t[i]){
-            return 0;
-        }
-        i++;
-    }
-    return 1;
 
-
-}
 int main() {
-  ;
+
+    for (int i = 0; i < 3; ++i) {
+        a[i] = malloc(MAXLEN);
+    }
+    readlines(a,3);
+    for (int i = 0; i < 3; ++i) {
+        printf("%s\n", a[i]);
+    }
+
     return 0;
 }
