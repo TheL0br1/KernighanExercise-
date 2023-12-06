@@ -1,47 +1,69 @@
 #include <stdio.h>
 #include<stdlib.h>
-#define MAXLEN 1000
-
-static char daytab[2][13] = {
-        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
-        {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
-};
-/* day_of_year: отримати день року маючи мiсяць i день */
-int day_of_year(int year, int month, int day) {
-    int i, leap;
-
-    if (month < 1 || month > 12 || day < 1 || day > daytab[0][month])
-        return -1;
-
-    leap = year % 4 == 0 && year % 100 != 0 || year % 400 == 0;
-
-    for (i = 1; i < month; i++)
-        day += *(*(daytab + leap) + i);
-
-    return day;
-}
-
-void month_day(int year, int yearday, int *pmonth, int *pday) {
-    int i, leap;
-
-    if (year < 1 || yearday < 1 || yearday > 365 + (leap ? 1 : 0))
-    {
-        *pmonth = -1;
-        *pday = -1;
-        return;
+#include<string.h>
+#include<ctype.h>
+#include "stack.h"
+#define NUMBER '0'
+int getNext(char* a){
+    int i = 0;
+    int size = strlen(a);
+    while(a[i] == ' ' || a[i] == '\t'){ i++;}
+    if(a[i]== '-' && isdigit(a[i+1])){
+        return NUMBER;
+    }
+    if(!isdigit(a[i]) ){
+        return a[i];
+    }
+    else{
+        return NUMBER;
     }
 
-    leap = year % 4 == 0 && year % 100 != 0 || year % 400 == 0;
-
-    for (i = 1; yearday > *(*(daytab + leap) + i); i++)
-        yearday -= *(*(daytab + leap) + i);
-
-    *pmonth = i;
-    *pday = yearday;
 }
-int main() {
+int main(int argc, char* argv[]) {
 
+    if(argc<=1){
+        return -1;
+    }
+    for (int i = 0; i <argc; ++i) {
+        printf("%s\n", argv[i]);
+    }
+    int type = 0;
+    int op2;
+    for (int i = 1; i <argc; ++i) {
+        type = getNext(argv[i]);
+        switch (type) {
+            case NUMBER:
+                push(atof(argv[i]));
+                break;
+            case '+':
+                push(pop() + pop());
+                break;
+            case '*':
+                push(pop() * pop());
 
+                break;
+            case '-':
+                op2 = pop();
+                push(pop() - op2);
+                break;
+            case '/':
+                op2 = pop();
+                if (op2 != 0.0) {
+                    push(pop() / op2);
+                }
+
+                else
+                    printf("error: zero divisor\n");
+                break;
+            case '\n':
+                printf("\t%.8g\n", pop());
+                break;
+            default:
+                printf("error: unknown command %s\n", argv[i]);
+                break;
+        }
+    }
+    printf("\t%.8g\n", pop());
 
     return 0;
 }
