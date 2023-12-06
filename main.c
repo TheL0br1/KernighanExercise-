@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+#include<ctype.h>
 #include "readlines.h"
 #define MAXLINES 5000
 int numeric = 0;
 int reverse = 0;
+int tobottom = 0;
 
 char *lineptr[MAXLINES]; /* покажчики на текст рядкiв */
 void qsort1(void *lineptr[], int left, int right,
@@ -19,10 +21,18 @@ int main(int argc, char *argv[])
         if(strcmp(argv[1], "-n") == 0) {
             numeric = 1;
         }
-        if(strcmp(argv[1], "-r") == 0) {
-            reverse = 1;
+        if(strcmp(argv[2], "-f") == 0) {
+            tobottom=1;
         }
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
+        if(tobottom) {
+            for (int i = 0; i < nlines; ++i) {
+                for (int j = 0; j < strlen(lineptr[i]); ++j) {
+                    lineptr[i][j] = tolower(lineptr[i][j]);
+                }
+            }
+
+        }
         qsort1((void**) lineptr, 0, nlines-1,
               (int (*)(const void*,const void*))(numeric ? numcmp : strcmp));
         writelines(lineptr, nlines);
