@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <malloc.h>
 #include "getch.h"
 
 #define MAXTOKEN 100
@@ -13,37 +14,29 @@ char token[MAXTOKEN]; /* ланцюжок останньої лексеми */
 char name[MAXTOKEN]; /* назва iдентифiкатору */
 char datatype[MAXTOKEN]; /* тип даних = char, int тощо */
 char out[1000];
+char datatype1[MAXTOKEN]; /* тип даних = char, int тощо */
+char out1[1000];
 
 int main() /* перетворює оголошення на словесний опис */
 {
-    int type;
-    int prev_type=-1;
-    char temp[MAXTOKEN];
-    while (gettoken() != EOF) {
-        strcpy(out, token);
-        while ((type = gettoken()) != '\n') {
-            if (type == PARENS || type == BRACKETS) {
-                strcat(out, token);
-            }
-            else if (type == '*') {
-                if(prev_type == BRACKETS){
-                    sprintf(temp, "*%s", out);
-
-                }
-                else {
-                    sprintf(temp, "(*%s)", out);
-                }
-                strcpy(out, temp);
-            } else if (type == NAME) {
-                sprintf(temp, "%s %s", token, out);
-                strcpy(out, temp);
-            } else
-                printf("invalid input at %s\n", token);
-            prev_type = type;
+    int temp;
+    while ((temp=gettoken()) != EOF) { /* перша лексема рядка */
+        if(temp == NAME || temp == QUAL){
+            strcat(datatype, strcat(token," "));
+            continue;/* is the datatype */
         }
-        printf("%s\n", temp);
+        if(temp == '*'){
+            ungetch('*');
+        }
+        out[0] = '\0';
+        dcl(); /* читання решти рядка */
+        if (tokentype != '\n') {
+            printf("syntax error\n");
+        }
+        printf("%s: %s %s\n", name, out, datatype);
     }
     return 0;
+
 }
 int gettoken(void) /* return next token */
 {
@@ -71,8 +64,10 @@ int gettoken(void) /* return next token */
         }
         *p = '\0';
         ungetch(c);
+        if(strcmp(token, "const") == 0 || strcmp(token, "static")==0){
+            return QUAL;
+        }
         return tokentype = NAME;
-
     } else {
         return tokentype = c;
     }
@@ -85,7 +80,9 @@ void dcl(void)
     }
     dirdcl();
     while (ns-- > 0)
-        strcat(out, " pointer to");
+        strcat(out1, " pointer to");
+    strcat(out1,out);
+    strcpy(out, out1);
 }
 /* dirdcl: прочитує безпосереднiй оголошувач */
 void dirdcl(void) {
@@ -101,10 +98,25 @@ void dirdcl(void) {
     else
         printf("error: expected name or (dcl)\n");
 
-    while ((type = gettoken()) == PARENS || type == BRACKETS || type == QUAL) {
-        if (type == PARENS)
-            strcat(out, " function returning");
-        else {
+    while ((type = gettoken()) == PARENS || type == BRACKETS || type =='(') {
+        if(type =='('){
+            strcat(out, " function, that takes");
+            while ((type=gettoken()) != ')') { /* перша лексема рядка */
+                if (type == NAME || type == QUAL) {
+                    strcat(datatype1, strcat(token, " "));
+                    continue;/* is the datatype */
+                }
+            }
+            ungetch(type);
+            if (type == '*') {
+                ungetch('*');
+            }
+            strcat(datatype1, "returning ");
+            strcat(datatype1, datatype);
+            strcpy(datatype, datatype1);
+        }
+
+        if(type == BRACKETS) {
             strcat(out, " array");
             strcat(out, token);
             strcat(out, " of");
@@ -112,7 +124,7 @@ void dirdcl(void) {
     }
 
     if (type != '\n') {
-        printf("error: expected newline\n");
-        while (gettoken() != '\n') {}
+        while (gettoken() != '\n') {;
+        }
     }
 }
