@@ -1,85 +1,97 @@
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
-#include<ctype.h>
-#include "readlines.h"
-#define MAXLINES 5000
-int numeric = 0;
-int reverse = 0;
-int tobottom = 0;
+#include <ctype.h>
+#include "getch.h"
 
-char *lineptr[MAXLINES]; /* покажчики на текст рядкiв */
-void qsort1(void *lineptr[], int left, int right,
-           int (*comp)(const void *, const void *));
-int numcmp(char *, char *);
-/* сортує рядки вводу */
-int main(int argc, char *argv[])
+#define MAXTOKEN 100
+enum { NAME, PARENS, BRACKETS, QUAL };
+void dcl(void);
+void dirdcl(void);
+int gettoken(void);
+int tokentype; /* тип останньої лексеми */
+char token[MAXTOKEN]; /* ланцюжок останньої лексеми */
+char name[MAXTOKEN]; /* назва iдентифiкатору */
+char datatype[MAXTOKEN]; /* тип даних = char, int тощо */
+char out[1000];
+
+int main() /* перетворює оголошення на словесний опис */
 {
-    int nlines; /* кiлькiсть прочитаних рядкiв вводу */
-
-    if (argc > 1 )
-        if(strcmp(argv[1], "-n") == 0) {
-            numeric = 1;
+    while (gettoken() != EOF) { /* перша лексема рядка */
+        strcpy(datatype, token); /* is the datatype */
+        out[0] = '\0';
+        dcl(); /* читання решти рядка */
+        if (tokentype != '\n') {
+            printf("syntax error\n");
         }
-        if(strcmp(argv[2], "-f") == 0) {
-            tobottom=1;
-        }
-    if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
-        if(tobottom) {
-            for (int i = 0; i < nlines; ++i) {
-                for (int j = 0; j < strlen(lineptr[i]); ++j) {
-                    lineptr[i][j] = tolower(lineptr[i][j]);
-                }
-            }
-
-        }
-        qsort1((void**) lineptr, 0, nlines-1,
-              (int (*)(const void*,const void*))(numeric ? numcmp : strcmp));
-        writelines(lineptr, nlines);
-        return 0;
-    } else {
-        printf("input too big to sort\n");
-        return 1;
+        printf("%s: %s %s\n", name, out, datatype);
     }
+    return 0;
 }
-
-int numcmp(char *s1, char *s2)
+int gettoken(void) /* return next token */
 {
-    double v1, v2;
-    v1 = atof(s1);
-    v2 = atof(s2);
-    if (v1 < v2)
-        return -1;
-    else if (v1 > v2)
-        return 1;
-    else
-        return 0;
-}
-void swap(void *v[], int i, int j)
-{
-    void *temp;
-    temp = v[i];
-    v[i] = v[j];
-    v[j] = temp;
-}
-void qsort1(void *v[], int left, int right,
-           int (*comp)(const void *, const void *))
-{
-    int i, last;
-    void swap(void *v[], int, int);
-    if (left >= right) /* не робить нiчого, якщо масив мiстить */
-    return; /* менше нiж два елементи */
-    swap(v, left, (left + right)/2);
-    last = left;
-    for (i = left+1; i <= right; i++)
-        if(reverse == 0) {
-            if ((*comp)(v[i], v[left]) < 0)
-                swap(v, ++last, i);
-        }else{
-            if ((*comp)(v[i], v[left]) < 0)
-                swap(v, i,++last);
+    int c;
+    char *p = token;
+    while ((c = getch()) == ' ' || c == '\t')
+    ;
+    if (c == '(') {
+        if ((c = getch()) == ')') {
+            strcpy(token, "()");
+            return tokentype = PARENS;
+        } else {
+            ungetch(c);
+            return tokentype = '(';
         }
-    swap(v, left, last);
-    qsort(v, left, last-1, comp);
-    qsort(v, last+1, right, comp);
+    } else if (c == '[') {
+        for (*p++ = c; (*p++ = getch()) != ']'; )
+        ;
+        *p = '\0';
+        return tokentype = BRACKETS;
+    } else if (isalpha(c)) {
+        for (*p++ = c; isalnum(c = getch()); )
+            *p++ = c;
+        *p = '\0';
+        ungetch(c);
+        return tokentype = NAME;
+
+    } else
+        return tokentype = c;
+}
+void dcl(void)
+{
+    int ns;
+    for (ns = 0; gettoken() == '*'; ) { /* count *’s */
+        ns++;
+    }
+    dirdcl();
+    while (ns-- > 0)
+        strcat(out, " pointer to");
+}
+/* dirdcl: прочитує безпосереднiй оголошувач */
+void dirdcl(void) {
+    int type;
+    if (tokentype == '(') { /* ( dcl ) */
+        dcl();
+        if (tokentype != ')') {
+            printf("error: missing )\n");
+            while (gettoken() != ')' && tokentype != '\n') {}
+        }
+    } else if (tokentype == NAME)
+        strcpy(name, token);
+    else
+        printf("error: expected name or (dcl)\n");
+
+    while ((type = gettoken()) == PARENS || type == BRACKETS || type == QUAL) {
+        if (type == PARENS)
+            strcat(out, " function returning");
+        else {
+            strcat(out, " array");
+            strcat(out, token);
+            strcat(out, " of");
+        }
+    }
+
+    if (type != '\n') {
+        printf("error: expected newline\n");
+        while (gettoken() != '\n') {}
+    }
 }
