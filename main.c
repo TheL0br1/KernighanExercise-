@@ -1,130 +1,103 @@
 #include <stdio.h>
-#include <string.h>
 #include <ctype.h>
-#include <malloc.h>
+#include <string.h>
 #include "getch.h"
+#define MAXWORD 100
+#define NKEYS 12
+struct key {
+    char *word;
+    int count;
+} keytab[] = {
 
-#define MAXTOKEN 100
-enum { NAME, PARENS, BRACKETS, QUAL };
-void dcl(void);
-void dirdcl(void);
-int gettoken(void);
-int tokentype; /* тип останньої лексеми */
-char token[MAXTOKEN]; /* ланцюжок останньої лексеми */
-char name[MAXTOKEN]; /* назва iдентифiкатору */
-char datatype[MAXTOKEN]; /* тип даних = char, int тощо */
-char out[1000];
-char datatype1[MAXTOKEN]; /* тип даних = char, int тощо */
-char out1[1000];
+        "auto", 0,
+        "break", 0,
+        "case", 0,
+        "char", 0,
+        "const", 0,
+        "continue", 0,
+        "default", 0,
+        "define", 0,
+        "unsigned", 0,
+        "void", 0,
+        "volatile", 0,
+        "while", 0
 
-int main() /* перетворює оголошення на словесний опис */
+};
+int getword(char *, int);
+int binsearch1(char *, struct key*, int);
+int main()
 {
-    int temp;
-    while ((temp=gettoken()) != EOF) { /* перша лексема рядка */
-        if(temp == NAME || temp == QUAL){
-            strcat(datatype, strcat(token," "));
-            continue;/* is the datatype */
-        }
-        if(temp == '*'){
-            ungetch('*');
-        }
-        out[0] = '\0';
-        dcl(); /* читання решти рядка */
-        if (tokentype != '\n') {
-            printf("syntax error\n");
-        }
-        printf("%s: %s %s\n", name, out, datatype);
-    }
+    int n;
+    char word[MAXWORD];
+    while (getword(word, MAXWORD) != EOF)
+        if (isalpha(word[0]))
+            if ((n = binsearch1(word, keytab, NKEYS)) >= 0)
+                keytab[n].count++;
+    for (n = 0; n < NKEYS; n++)
+        if (keytab[n].count > 0)
+            printf("%4d %s\n",
+                   keytab[n].count, keytab[n].word);
     return 0;
-
 }
-int gettoken(void) /* return next token */
+int binsearch1(char *word, struct key tab[], int n)
 {
-    int c;
-    char *p = token;
-    while ((c = getch()) == ' ' || c == '\t') { ;
+    int cond;
+    int low, high, mid;
+    low = 0;
+    high = n - 1;
+    while (low <= high) {
+        mid = (low+high) / 2;
+        if ((cond = strcmp(word, tab[mid].word)) < 0)
+            high = mid - 1;
+        else if (cond > 0)
+            low = mid + 1;
+        else
+            return mid;
     }
-    if (c == '(') {
-        if ((c = getch()) == ')') {
-            strcpy(token, "()");
-            return tokentype = PARENS;
-        } else {
-            ungetch(c);
-            return tokentype = '(';
-        }
-    } else if (c == '[') {
-        for (*p++ = c; (*p++ = getch()) != ']'; ) {
+    return -1;
+}
+int getword(char *word, int lim)
+{
+    int c, getch(void);
+    void ungetch(int);
+    char *w = word;
+    while (isspace(c = getch()))
+        ;
+    if(c=='"'){
+        while ((c = getch())=='"')
             ;
-        }
-        *p = '\0';
-        return tokentype = BRACKETS;
-    } else if (isalpha(c)) {
-        for (*p++ = c; isalnum(c = getch());) {
-            *p++ = c;
-        }
-        *p = '\0';
-        ungetch(c);
-        if(strcmp(token, "const") == 0 || strcmp(token, "static")==0){
-            return QUAL;
-        }
-        return tokentype = NAME;
-    } else {
-        return tokentype = c;
+        while ((c = getch())!='"')
+            ;
+        while ((c = getch())=='"')
+            ;
     }
-}
-void dcl(void)
-{
-    int ns;
-    for (ns = 0; gettoken() == '*'; ) { /* count *’s */
-        ns++;
+    if(c=='/'){
+        if((c=getch()) == '/'){
+            while ((c = getch())!='\n')
+                ;
+        }else if(c == '*'){
+            while ((c = getch())!='/')
+                ;
+        }else{
+            ungetch(c);
+        }
     }
-    dirdcl();
-    while (ns-- > 0)
-        strcat(out1, " pointer to");
-    strcat(out1,out);
-    strcpy(out, out1);
-}
-/* dirdcl: прочитує безпосереднiй оголошувач */
-void dirdcl(void) {
-    int type;
-    if (tokentype == '(') { /* ( dcl ) */
-        dcl();
-        if (tokentype != ')') {
-            printf("error: missing )\n");
-            while (gettoken() != ')' && tokentype != '\n') {}
-        }
-    } else if (tokentype == NAME)
-        strcpy(name, token);
-    else
-        printf("error: expected name or (dcl)\n");
+    if(c=='#'){
+        c = getch();
 
-    while ((type = gettoken()) == PARENS || type == BRACKETS || type =='(') {
-        if(type =='('){
-            strcat(out, " function, that takes");
-            while ((type=gettoken()) != ')') { /* перша лексема рядка */
-                if (type == NAME || type == QUAL) {
-                    strcat(datatype1, strcat(token, " "));
-                    continue;/* is the datatype */
-                }
-            }
-            ungetch(type);
-            if (type == '*') {
-                ungetch('*');
-            }
-            strcat(datatype1, "returning ");
-            strcat(datatype1, datatype);
-            strcpy(datatype, datatype1);
-        }
-
-        if(type == BRACKETS) {
-            strcat(out, " array");
-            strcat(out, token);
-            strcat(out, " of");
-        }
     }
 
-    if (type != '\n') {
-        while (gettoken() != '\n') {;
-        }
+    if (c != EOF)
+        *w++ = c;
+    if (!isalpha(c)) {
+        *w = '\0';
+        return c;
     }
+    for ( ; --lim > 0; w++)
+        if (!isalnum(*w = getch())) {
+            ungetch(*w);
+            break;
+        }
+    *w = '\0';
+    return word[0];
 }
