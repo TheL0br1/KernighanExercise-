@@ -1,65 +1,46 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include<stdbool.h>
+#include <malloc.h>
 #include "getch.h"
+#include<alg.h>
 #define MAXWORD 100
 #define NKEYS 12
-struct key {
-    char *word;
-    int count;
-} keytab[] = {
-
-        "auto", 0,
-        "break", 0,
-        "case", 0,
-        "char", 0,
-        "const", 0,
-        "continue", 0,
-        "default", 0,
-        "define", 0,
-        "unsigned", 0,
-        "void", 0,
-        "volatile", 0,
-        "while", 0
-
+struct tnode { /* вузол дерева: */
+    char *word; /* покажчик на ланцюжок */
+    int count; /* кiлькiсть його повторень */
+    struct tnode *left; /* лiвий дочiрнiй вузол */
+    struct tnode *right; /* правий дочiрнiй вузол */
 };
+int n;
+bool iskeyword(char* str);
+struct tnode *addtree(struct tnode *, char *);
 int getword(char *, int);
-int binsearch1(char *, struct key*, int);
-int main()
+void treeprint(struct tnode *);
+
+int main(int argc, char*argv[])
 {
-    int n;
+    int testing1;
+    int testing2;
+    int testing3;
+    if(argc > 1){
+        n = atoi(argv[1]);
+    }
+    struct tnode *root;
+    root = NULL;
     char word[MAXWORD];
     while (getword(word, MAXWORD) != EOF)
         if (isalpha(word[0]))
-            if ((n = binsearch1(word, keytab, NKEYS)) >= 0)
-                keytab[n].count++;
-    for (n = 0; n < NKEYS; n++)
-        if (keytab[n].count > 0)
-            printf("%4d %s\n",
-                   keytab[n].count, keytab[n].word);
+            if(!iskeyword(word)){
+                root = addtree(root, word);
+            }
+    treeprint(root);
     return 0;
-}
-int binsearch1(char *word, struct key tab[], int n)
-{
-    int cond;
-    int low, high, mid;
-    low = 0;
-    high = n - 1;
-    while (low <= high) {
-        mid = (low+high) / 2;
-        if ((cond = strcmp(word, tab[mid].word)) < 0)
-            high = mid - 1;
-        else if (cond > 0)
-            low = mid + 1;
-        else
-            return mid;
-    }
-    return -1;
 }
 int getword(char *word, int lim)
 {
-    int c, getch(void);
-    void ungetch(int);
+    int c;
     char *w = word;
     while (isspace(c = getch()))
         ;
@@ -100,4 +81,58 @@ int getword(char *word, int lim)
         }
     *w = '\0';
     return word[0];
+}
+//Ну не писав же я цю функція вручну, чи не так? (◠‿・)—☆
+bool iskeyword(char* str)
+{
+    if (!strcmp(str, "auto") || !strcmp(str, "default")
+        || !strcmp(str, "signed") || !strcmp(str, "enum")
+        || !strcmp(str, "extern") || !strcmp(str, "for")
+        || !strcmp(str, "register") || !strcmp(str, "if")
+        || !strcmp(str, "else") || !strcmp(str, "int")
+        || !strcmp(str, "while") || !strcmp(str, "do")
+        || !strcmp(str, "break") || !strcmp(str, "continue")
+        || !strcmp(str, "double") || !strcmp(str, "float")
+        || !strcmp(str, "return") || !strcmp(str, "char")
+        || !strcmp(str, "case") || !strcmp(str, "const")
+        || !strcmp(str, "sizeof") || !strcmp(str, "long")
+        || !strcmp(str, "short") || !strcmp(str, "typedef")
+        || !strcmp(str, "switch")
+        || !strcmp(str, "unsigned") || !strcmp(str, "void")
+        || !strcmp(str, "static") || !strcmp(str, "struct")
+        || !strcmp(str, "goto") || !strcmp(str, "union")
+        || !strcmp(str, "volatile"))
+        return (true);
+    return (false);
+}
+int flagprint = 1;
+void treeprint(struct tnode *p)
+{
+    if (p != NULL) {
+        if(flagprint && strlen(p->word)>=n) {
+            printf("group similar to %s:\n", p->word);
+            flagprint = 0;
+        }
+        treeprint(p->left);
+        flagprint = 1;
+
+        if(strlen(p->word)>=n) {
+            printf("%s\n" , p->word);
+        }
+        treeprint(p->right);
+    }
+}
+struct tnode *addtree(struct tnode *p, char *w)
+{
+    if (p == NULL) { /* надiйшло нове слов */
+        p = (struct tnode *)malloc(sizeof(struct tnode)); /* створити новий вузол */
+        p->word = strdup(w);
+        p->count = 1;
+        p->left = p->right = NULL;
+    }
+    else if (strncmp(w, p->word,n) == 0 && strcmp(w, p->word) != 0) /* якщо менше - лiве вiдгалуження */
+        p->left = addtree(p->left, w);
+    else if(strcmp(w, p->word) != 0)/* якщо бiльше - праве вiдгалуження */
+        p->right = addtree(p->right, w);
+    return p;
 }
