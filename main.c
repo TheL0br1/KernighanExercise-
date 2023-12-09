@@ -9,11 +9,12 @@
 #define NKEYS 12
 struct tnode { /* вузол дерева: */
     char *word; /* покажчик на ланцюжок */
-    int count; /* кiлькiсть його повторень */
+    int line; /* кiлькiсть його повторень */
     struct tnode *left; /* лiвий дочiрнiй вузол */
     struct tnode *right; /* правий дочiрнiй вузол */
 };
 int n;
+int newlinec;
 bool iskeyword(char* str);
 struct tnode *addtree(struct tnode *, char *);
 int getword(char *, int);
@@ -21,9 +22,7 @@ void treeprint(struct tnode *);
 
 int main(int argc, char*argv[])
 {
-    int testing1;
-    int testing2;
-    int testing3;
+    newlinec = 0;
     if(argc > 1){
         n = atoi(argv[1]);
     }
@@ -42,8 +41,13 @@ int getword(char *word, int lim)
 {
     int c;
     char *w = word;
-    while (isspace(c = getch()))
-        ;
+    while (isspace(c = getch())){
+        if(c == '\n'){
+            newlinec++;
+        }
+    }
+
+
     if(c=='"'){
         while ((c = getch())=='"')
             ;
@@ -117,7 +121,7 @@ void treeprint(struct tnode *p)
         flagprint = 1;
 
         if(strlen(p->word)>=n) {
-            printf("%s\n" , p->word);
+            printf("%s, line: %d\n" , p->word, (p->line + 1));
         }
         treeprint(p->right);
     }
@@ -127,7 +131,7 @@ struct tnode *addtree(struct tnode *p, char *w)
     if (p == NULL) { /* надiйшло нове слов */
         p = (struct tnode *)malloc(sizeof(struct tnode)); /* створити новий вузол */
         p->word = strdup(w);
-        p->count = 1;
+        p->line = newlinec;
         p->left = p->right = NULL;
     }
     else if (strncmp(w, p->word,n) == 0 && strcmp(w, p->word) != 0) /* якщо менше - лiве вiдгалуження */
