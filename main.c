@@ -6,23 +6,26 @@
 #include "getch.h"
 #include<alg.h>
 #define MAXWORD 100
-#define NKEYS 12
+struct buffer{
+    char *string;
+    int count;
+} buffer[1000];
+int buffcounter;
+
 struct tnode { /* вузол дерева: */
     char *word; /* покажчик на ланцюжок */
-    int line; /* кiлькiсть його повторень */
+    int count; /* кiлькiсть його повторень */
     struct tnode *left; /* лiвий дочiрнiй вузол */
     struct tnode *right; /* правий дочiрнiй вузол */
 };
 int n;
-int newlinec;
 bool iskeyword(char* str);
 struct tnode *addtree(struct tnode *, char *);
 int getword(char *, int);
 void treeprint(struct tnode *);
-
+int comp(const struct buffer* a, const struct buffer *b);
 int main(int argc, char*argv[])
 {
-    newlinec = 0;
     if(argc > 1){
         n = atoi(argv[1]);
     }
@@ -35,6 +38,10 @@ int main(int argc, char*argv[])
                 root = addtree(root, word);
             }
     treeprint(root);
+    qsort(buffer, buffcounter, sizeof(struct buffer), (int (*)(const void *, const void *)) comp);
+    for (int i = 0; i < buffcounter; ++i) {
+        printf("string: %s, count: %d\n", buffer[i].string, buffer[i].count);
+    }
     return 0;
 }
 int getword(char *word, int lim)
@@ -42,9 +49,7 @@ int getword(char *word, int lim)
     int c;
     char *w = word;
     while (isspace(c = getch())){
-        if(c == '\n'){
-            newlinec++;
-        }
+        ;
     }
 
 
@@ -113,30 +118,38 @@ int flagprint = 1;
 void treeprint(struct tnode *p)
 {
     if (p != NULL) {
-        if(flagprint && strlen(p->word)>=n) {
-            printf("group similar to %s:\n", p->word);
-            flagprint = 0;
-        }
+        buffer[buffcounter].string = malloc(strlen(p->word));
+        buffer[buffcounter].count = p->count;
+        strcpy(buffer[buffcounter++].string, p->word);
         treeprint(p->left);
-        flagprint = 1;
-
-        if(strlen(p->word)>=n) {
-            printf("%s, line: %d\n" , p->word, (p->line + 1));
-        }
         treeprint(p->right);
     }
 }
+
 struct tnode *addtree(struct tnode *p, char *w)
 {
-    if (p == NULL) { /* надiйшло нове слов */
+    int cond;
+    if (p == NULL) { /* надiйшло нове слово */
         p = (struct tnode *)malloc(sizeof(struct tnode)); /* створити новий вузол */
         p->word = strdup(w);
-        p->line = newlinec;
+        p->count = 1;
         p->left = p->right = NULL;
-    }
-    else if (strncmp(w, p->word,n) == 0 && strcmp(w, p->word) != 0) /* якщо менше - лiве вiдгалуження */
+    } else if ((cond = strcmp(w, p->word)) == 0)
+        p->count++; /* повторне слово */
+    else if (cond < 0) /* якщо менше - лiве вiдгалуження */
         p->left = addtree(p->left, w);
-    else if(strcmp(w, p->word) != 0)/* якщо бiльше - праве вiдгалуження */
+    else /* якщо бiльше - праве вiдгалуження */
         p->right = addtree(p->right, w);
     return p;
 }
+int comp(const struct buffer* a, const struct buffer *b){
+    if(a->count==b->count){
+        return 0;
+    }
+    else if(a->count>b->count){
+        return -1;
+    }else{
+        return 1;
+    }
+}
+
